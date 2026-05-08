@@ -1,0 +1,21 @@
+# NPM
+.npm
+
+# Node
+node_modules
+logs
+*.log
+npm-debug.log*
+
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+*.pid
+*.seed
+*.pid.lock
+
+#TypeScript
+dist
+*.tsbuildinfo
+
+#Secrets
+.env*
