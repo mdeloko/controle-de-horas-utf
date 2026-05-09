@@ -16,8 +16,8 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "tsx watch --env-file=src/.env src/index.ts",
-    "start": "node --env-file=src/.env dist/index.js",
-    "build": "npx tsc && npm run start"
+    "start": "node dist/index.js",
+    "build": "tsc"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
