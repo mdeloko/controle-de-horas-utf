@@ -1,11 +1,15 @@
 import express from  "express";
+import cors from "cors";
 import fs from "fs";
 import seed from "./database/seed.js";
 import db from "./database/database.js";
 import userRouter from "./routes/userRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import authMiddleware from "./middlewares/authMiddleware.js";
+import errorHandler from "./middlewares/errorHandler.js";
 import tipoAtividadeRouter from "./routes/tipoAtividadeRoutes.js";
+import registroHorasRouter from "./routes/registroHorasRoutes.js";
+import relatorioRouter from "./routes/relatorioRoutes.js";
 import logger from "./middlewares/logger.js";
 
 const app = express();
@@ -20,8 +24,7 @@ if(!pathExists){
 
 process.env.NODE_ENV === 'development' && app.use(logger);
 app.use(express.json());
-
-app.use('/tipos-atividade', tipoAtividadeRouter);
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 // rotas públicas
 app.use('/auth', authRouter);
@@ -35,5 +38,10 @@ app.use(authMiddleware);
 
 // rotas protegidas
 app.use('/user', userRouter);
+app.use('/tipos-atividade', tipoAtividadeRouter);
+app.use('/registros', registroHorasRouter);
+app.use('/relatorios', relatorioRouter);
+
+app.use(errorHandler);
 
 app.listen(PORT,() => console.log('🚀 Servidor funcionando na porta', PORT));
