@@ -19,6 +19,7 @@ dist
 
 #Secrets
 .env*
+!.env.example
 
 #Do Projeto
 data
