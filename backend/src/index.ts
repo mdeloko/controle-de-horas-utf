@@ -3,6 +3,7 @@ import fs from "fs";
 import seed from "./database/seed.js";
 import db from "./database/database.js";
 import userRouter from "./routes/userRoutes.js";
+import tipoAtividadeRouter from "./routes/tipoAtividadeRoutes.js";
 import logger from "./middlewares/logger.js";
 
 const app = express();
@@ -18,6 +19,7 @@ if(!pathExists){
 process.env.NODE_ENV === 'development' && app.use(logger);
 app.use(express.json());
 app.use('/user',userRouter);
+app.use('/tipos-atividade', tipoAtividadeRouter);
 
 app.get("/ping",(_,res)=>{
     const data:string = new Date().toLocaleDateString("pt-BR",{hour:"numeric",minute:"numeric",second:"numeric"})
