@@ -48,9 +48,9 @@ export default async function seed() {
 		)
 
 		console.log('\nSeed concluído!')
-		process.exit(0)
+		
 	} catch (error) {
 		console.error('Erro no seed:', error)
-		process.exit(1)
+		throw error
 	}
 }
