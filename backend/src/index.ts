@@ -2,7 +2,7 @@ import express from  "express";
 import cors from "cors";
 import fs from "fs";
 import seed from "./database/seed.js";
-import db from "./database/database.js";
+import db, { databasePath } from "./database/database.js";
 import userRouter from "./routes/userRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import authMiddleware from "./middlewares/authMiddleware.js";
@@ -15,8 +15,8 @@ import logger from "./middlewares/logger.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const pathExists = fs.existsSync(import.meta.dirname+"/database/data");
-if(!pathExists){
+const dbExists = fs.existsSync(databasePath);
+if(!dbExists){
     await seed();
 }else{
     await db.sync({force:false,logging:false});
