@@ -11,6 +11,8 @@ RegistroHoras.belongsTo(Usuario, {
 TipoAtividade.hasMany(RegistroHoras, {
 	foreignKey: 'tipo_atividade_id',
 	as: 'registros',
+	onDelete: 'RESTRICT',
+	onUpdate: 'CASCADE',
 })
 RegistroHoras.belongsTo(TipoAtividade, {
 	foreignKey: 'tipo_atividade_id',
