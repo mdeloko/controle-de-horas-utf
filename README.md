@@ -5,6 +5,18 @@ ao projeto **Meninas Digitais** da UTFPR. Desenvolvido como trabalho da
 disciplina **Certificadora da Competência 3**, do curso de Engenharia de
 Computação na UTFPR Cornélio Procópio.
 
+## Sumário
+
+- [Equipe](#equipe)
+- [Objetivo](#objetivo)
+- [Acesso à versão em produção](#acesso-à-versão-em-produção)
+- [Funcionalidades desenvolvidas](#funcionalidades-desenvolvidas)
+- [Tecnologias utilizadas](#tecnologias-utilizadas)
+- [Como executar o projeto](#como-executar-o-projeto)
+- [Roteiro de teste](#roteiro-de-teste)
+- [Contas de acesso padrão](#contas-de-acesso-padrão)
+- [Estrutura do repositório](#estrutura-do-repositório)
+
 ## Equipe
 
 **Grupo 5**, Engenharia de Computação, UTFPR Cornélio Procópio (2026).
