@@ -46,9 +46,14 @@ entrar diretamente sem precisar instalar nada.
   **atribuição direta** pelo diretor (já aprovada).
 - **Aprovação e edição** de registros pelo diretor.
 - **Listagem com filtros** por usuário, tipo, status e intervalo de datas.
-- **Relatórios**: resumo por participante, distribuição por tipo de
-  atividade, ranking e exportação em CSV.
-- **Reset de senha** de participantes pelo diretor.
+- **Relatórios**: total de horas por participante, distribuição por tipo de
+  atividade, ranking, **exportação em CSV** (geral ou por participante) e
+  **geração de certificado em PDF** por participante.
+- **Gestão de participantes**: cadastrar, editar (nome e perfil) e
+  **ativar/inativar** o acesso.
+- **Recuperação de acesso** (sem dependência de e-mail): o diretor reseta a
+  senha e gera uma temporária; o próprio usuário a troca depois em
+  **Perfil → Trocar senha**.
 
 ## Tecnologias utilizadas
 
@@ -57,7 +62,7 @@ entrar diretamente sem precisar instalar nada.
 | Ferramenta | Versão | Link |
 |---|---|---|
 | Node.js | 22 LTS | https://nodejs.org/ |
-| TypeScript | 5.8 | https://www.typescriptlang.org/ |
+| TypeScript | 5.8 / 6.0 | https://www.typescriptlang.org/ |
 | Visual Studio Code | 1.95+ | https://code.visualstudio.com/ |
 | Git | 2.40+ | https://git-scm.com/ |
 
@@ -236,11 +241,11 @@ Sugestão de ordem para testar todas as funcionalidades:
    - Você verá a tela inicial com acesso completo ao sistema.
 
 3. **Cadastre um novo participante**:
-   - Vá em **Usuários > Novo participante**.
+   - Vá em **Participantes** e use o formulário **Novo Participante** (lateral direita).
    - Preencha nome e e-mail. A senha inicial será gerada e exibida.
 
 4. **Atribua horas a um participante**:
-   - Vá em **Registros > Atribuir horas**.
+   - Vá em **Atribuir Horas**.
    - Selecione o participante, o tipo de atividade, a data e a quantidade
      de horas. Essa entrada já é criada como **aprovada**.
 
@@ -249,17 +254,20 @@ Sugestão de ordem para testar todas as funcionalidades:
    - Cadastre um registro próprio. Ele entra como **pendente**.
 
 6. **Volte como diretor e aprove o registro pendente**:
-   - Vá em **Registros**, filtre por status **pendente** e clique em
-     aprovar.
+   - Vá em **Validação** e aprove o registro pendente na fila.
 
-7. **Veja os relatórios**:
-   - **Resumo** por participante (total de horas aprovadas).
-   - **Por tipo** de atividade.
-   - **Ranking** dos participantes com mais horas (visível só ao diretor).
-   - **Exportação CSV** (faz o download do arquivo).
+7. **Veja os relatórios e gere certificados**:
+   - **Total de horas por participante** e **ranking** (visível só ao diretor).
+   - **Exportação CSV**: geral ou filtrada por participante e período.
+   - **Gerar Certificado (PDF)**: selecione uma participante e baixe o
+     certificado com o total de horas e as atividades incluídas.
 
 8. **Edite um tipo de atividade** ou crie um novo em **Tipos de
-   atividade**.
+   Atividade**.
+
+9. **Troque sua senha** em **Perfil → Trocar senha** (informe a senha atual
+   e a nova). É assim que funciona a recuperação de acesso: a coordenação
+   reseta e informa uma senha temporária, e você a redefine aqui.
 
 ## Contas de acesso padrão
 
