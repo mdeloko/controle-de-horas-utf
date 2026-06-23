@@ -19,4 +19,11 @@ const db = new Sequelize({
 	},
 })
 
+// SQLite só aplica as chaves estrangeiras com o pragma ligado em cada conexão
+db.addHook('afterConnect', (connection) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const conn = connection as any
+	conn.run('PRAGMA foreign_keys = ON')
+})
+
 export default db;
