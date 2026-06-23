@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getRegistros, getRanking } from "@/services/api";
+import { getRegistros, getRanking, getUsuarios } from "@/services/api";
 
 export default function DirectorDashboard() {
   const navigate = useNavigate();
@@ -22,8 +22,11 @@ export default function DirectorDashboard() {
     queryFn: getRanking,
   });
 
+  const { data: usuarios = [] } = useQuery({ queryKey: ["usuarios"], queryFn: getUsuarios });
+
   const pendentes = registros.filter((r) => r.status === "Pendente");
   const totalHoras = registros.filter((r) => r.status === "Aprovada").reduce((s, r) => s + r.hours, 0);
+  const totalParticipantes = usuarios.filter((u) => u.role === "Participante").length;
 
   const topParticipantes = ranking.slice(0, 5);
   const maxHoras = topParticipantes[0]?.total_horas ?? 1;
@@ -55,7 +58,7 @@ export default function DirectorDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Participantes" value={ranking.length} icon={<Users className="h-5 w-5" />} hint="cadastrados no sistema" />
+        <StatCard label="Participantes" value={totalParticipantes} icon={<Users className="h-5 w-5" />} hint="cadastrados no sistema" />
         <StatCard label="Horas Totais Aprovadas" value={<>{totalHoras}<span className="text-lg text-muted-foreground"> h</span></>} icon={<Clock className="h-5 w-5" />} hint="acumulado geral" />
         <StatCard
           label="Registros Pendentes"

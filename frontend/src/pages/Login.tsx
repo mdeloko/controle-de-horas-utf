@@ -3,8 +3,8 @@ import { Mail, Lock, ArrowRight, PlaySquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
+import PasswordInput from "@/components/PasswordInput";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -85,9 +85,8 @@ export default function Login() {
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   placeholder="••••••••"
                   className="pl-9 h-11"
                   {...register("password")}
@@ -96,10 +95,7 @@ export default function Login() {
               {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
-                <Checkbox /> Lembrar-me
-              </label>
+            <div className="flex items-center justify-end text-sm">
               <Link to="/forgot-password" className="text-primary font-medium hover:underline">
                 Esqueci minha senha
               </Link>

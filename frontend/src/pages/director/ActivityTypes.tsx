@@ -25,6 +25,7 @@ export default function ActivityTypesPage() {
   const [editing, setEditing] = useState<TipoAtividade | null>(null);
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState("");
+  const [removendo, setRemovendo] = useState<TipoAtividade | null>(null);
 
   const { data: tipos = [], isLoading } = useQuery({ queryKey: ["tipos"], queryFn: getTipos });
 
@@ -139,7 +140,7 @@ export default function ActivityTypesPage() {
                 variant="ghost"
                 size="icon"
                 disabled={deleteMutation.isPending}
-                onClick={() => deleteMutation.mutate(t.id)}
+                onClick={() => setRemovendo(t)}
               >
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
@@ -150,6 +151,37 @@ export default function ActivityTypesPage() {
           )}
         </div>
       )}
+
+      <Dialog open={!!removendo} onOpenChange={(o) => !o && setRemovendo(null)}>
+        <DialogContent>
+          {removendo && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Remover tipo</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                Deseja remover o tipo <span className="font-medium text-foreground">{removendo.nome}</span>? Tipos já
+                usados em registros não podem ser removidos.
+              </p>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setRemovendo(null)}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={deleteMutation.isPending}
+                  onClick={() => {
+                    deleteMutation.mutate(removendo.id);
+                    setRemovendo(null);
+                  }}
+                >
+                  Remover
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

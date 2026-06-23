@@ -1,5 +1,5 @@
 import { LogOut } from "lucide-react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { useAuth } from "@/context/AuthContext";
@@ -18,10 +18,7 @@ export default function AppLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
+  if (!user) return <Navigate to="/login" replace />;
 
   const handleLogout = () => {
     logout();
