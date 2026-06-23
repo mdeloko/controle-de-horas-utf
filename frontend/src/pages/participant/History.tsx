@@ -35,6 +35,8 @@ export default function History() {
     [registros, status, tipo, dataInicio, dataFim],
   );
 
+  const periodoInvalido = !!dataInicio && !!dataFim && dataInicio > dataFim;
+
   return (
     <div className="space-y-6 max-w-6xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -79,6 +81,10 @@ export default function History() {
             <Input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
           </div>
         </div>
+
+        {periodoInvalido && (
+          <p className="text-xs text-destructive mb-4">A data inicial não pode ser maior que a final.</p>
+        )}
 
         <div className="rounded-lg border overflow-hidden">
           <Table>

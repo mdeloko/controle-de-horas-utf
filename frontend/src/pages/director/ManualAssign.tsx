@@ -15,7 +15,13 @@ import { z } from "zod";
 const schema = z.object({
   usuarioId: z.string().min(1, "Selecione a participante"),
   tipoId: z.string().min(1, "Selecione o tipo de atividade"),
-  data: z.string().min(1, "Informe a data"),
+  data: z
+    .string()
+    .min(1, "Informe a data")
+    .refine(
+      (d) => d <= new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
+      "A data não pode ser futura",
+    ),
   horas: z.coerce
     .number({ invalid_type_error: "Informe um número válido" })
     .min(0.5, "Mínimo de 0.5 horas")
@@ -31,7 +37,7 @@ export default function ManualAssign() {
   const { data: usuarios = [] } = useQuery({ queryKey: ["usuarios"], queryFn: getUsuarios });
   const { data: tipos = [] } = useQuery({ queryKey: ["tipos"], queryFn: getTipos });
 
-  const participantes = usuarios.filter((u) => u.role === "Participante");
+  const participantes = usuarios.filter((u) => u.role === "Participante" && u.ativo);
 
   const {
     register,
@@ -45,6 +51,7 @@ export default function ManualAssign() {
     mutationFn: atribuirRegistro,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["registros"] });
+      queryClient.invalidateQueries({ queryKey: ["ranking"] });
       toast.success("Horas atribuídas e aprovadas com sucesso!");
       reset();
     },

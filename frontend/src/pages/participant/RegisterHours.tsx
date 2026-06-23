@@ -15,7 +15,13 @@ import { z } from "zod";
 
 const schema = z.object({
   tipoId: z.string().min(1, "Selecione o tipo de atividade"),
-  data: z.string().min(1, "Informe a data da atividade"),
+  data: z
+    .string()
+    .min(1, "Informe a data da atividade")
+    .refine(
+      (d) => d <= new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
+      "A data não pode ser futura",
+    ),
   horas: z.coerce
     .number({ invalid_type_error: "Informe um número válido" })
     .min(0.5, "Mínimo de 0.5 horas")

@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { getRegistros } from "@/services/api";
+import { META_HORAS } from "@/lib/constants";
 import {
   Area,
   AreaChart,
@@ -20,8 +21,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
-const META_HORAS = 120;
 
 const CHART_COLORS = [
   "hsl(262 70% 45%)",

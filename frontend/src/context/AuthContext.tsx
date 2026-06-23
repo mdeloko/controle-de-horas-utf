@@ -15,8 +15,12 @@ const STORAGE_KEY = "md_user";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? (JSON.parse(saved) as AuthUser) : null;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? (JSON.parse(saved) as AuthUser) : null;
+    } catch {
+      return null;
+    }
   });
 
   const login = async (email: string, password: string) => {

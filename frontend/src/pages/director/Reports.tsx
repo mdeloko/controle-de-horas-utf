@@ -13,6 +13,7 @@ import { Award, Clock, Download, Users, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { getRegistros, getUsuarios, exportarCSV } from "@/services/api";
+import { gerarCertificadoPDF } from "@/lib/certificado";
 
 export default function Reports() {
   const [exportOpen, setExportOpen] = useState(false);
@@ -27,21 +28,68 @@ export default function Reports() {
   const { data: usuarios = [] } = useQuery({ queryKey: ["usuarios"], queryFn: getUsuarios });
 
   const participantes = usuarios.filter((u) => u.role === "Participante");
-  const selected = participantes.find((u) => String(u.id) === selectedUserId);
 
   const certRecords = registros.filter(
-    (r) => r.status === "Aprovada" && (selectedUserId === "all" || r.participantId === selectedUserId),
+    (r) =>
+      r.status === "Aprovada" &&
+      (selectedUserId === "all" || r.participantId === selectedUserId) &&
+      (!dataInicio || r.date >= dataInicio) &&
+      (!dataFim || r.date <= dataFim),
   );
   const totalHours = certRecords.reduce((s, r) => s + r.hours, 0);
+
+  const periodoInvalido = !!dataInicio && !!dataFim && dataInicio > dataFim;
 
   const aprovadas = registros.filter((r) => r.status === "Aprovada");
   const pendentes = registros.filter((r) => r.status === "Pendente");
   const totalAprovadas = aprovadas.reduce((s, r) => s + r.hours, 0);
 
-  const handleExportCSV = async () => {
+  const handleExportCSV = async (usuarioId?: number) => {
+    if (periodoInvalido) {
+      toast.error("A data inicial não pode ser maior que a final.");
+      return;
+    }
     try {
-      await exportarCSV({ data_inicio: dataInicio || undefined, data_fim: dataFim || undefined });
+      await exportarCSV({
+        usuario_id: usuarioId,
+        data_inicio: dataInicio || undefined,
+        data_fim: dataFim || undefined,
+      });
       toast.success("CSV exportado com sucesso!");
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  };
+
+  const handleGenerateCertificate = () => {
+    if (selectedUserId === "all") {
+      toast.error("Selecione uma participante para gerar o certificado.");
+      return;
+    }
+    if (periodoInvalido) {
+      toast.error("A data inicial não pode ser maior que a final.");
+      return;
+    }
+    const participante = participantes.find((u) => String(u.id) === selectedUserId);
+    if (!participante) return;
+    if (certRecords.length === 0) {
+      toast.error(
+        dataInicio || dataFim
+          ? "Nenhuma hora aprovada no período selecionado."
+          : "Esta participante não tem horas aprovadas para certificar.",
+      );
+      return;
+    }
+    try {
+      gerarCertificadoPDF({
+        participante: participante.name,
+        horasTotais: totalHours,
+        registros: certRecords,
+        dataInicio,
+        dataFim,
+      });
+      toast.success("Certificado gerado!");
+      setExportOpen(false);
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -52,7 +100,7 @@ export default function Reports() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Relatórios e Exportação</h1>
-          <p className="text-muted-foreground mt-1">Visão consolidada de horas e emissão de certificados oficiais.</p>
+          <p className="text-muted-foreground mt-1">Consolidação de horas e emissão de certificados.</p>
         </div>
         <Dialog open={exportOpen} onOpenChange={setExportOpen}>
           <DialogTrigger asChild>
@@ -91,11 +139,18 @@ export default function Reports() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setExportOpen(false)}>Cancelar</Button>
-              <Button className="gradient-primary text-primary-foreground gap-2" onClick={() => {
-                toast.success(`Dados de ${selected?.name ?? "todos"} exportados!`, { description: `${totalHours}h aprovadas.` });
-                setExportOpen(false);
-              }}>
-                <Award className="h-4 w-4" /> Exportar Dados
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={async () => {
+                  await handleExportCSV(selectedUserId !== "all" ? Number(selectedUserId) : undefined);
+                  setExportOpen(false);
+                }}
+              >
+                <Download className="h-4 w-4" /> Exportar CSV
+              </Button>
+              <Button className="gradient-primary text-primary-foreground gap-2" onClick={handleGenerateCertificate}>
+                <Award className="h-4 w-4" /> Gerar Certificado (PDF)
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -111,7 +166,7 @@ export default function Reports() {
       <Card className="p-6 shadow-card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold">Horas Consolidadas</h2>
-          <Button variant="outline" size="sm" className="gap-2" onClick={handleExportCSV}>
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => handleExportCSV()}>
             <Download className="h-4 w-4" /> Exportar CSV
           </Button>
         </div>

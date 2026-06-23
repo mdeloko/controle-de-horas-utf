@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StatCard } from "@/components/StatCard";
-import { Check, Pencil, Filter, Hourglass, CheckCircle2 } from "lucide-react";
+import { Check, Pencil, Hourglass, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRegistros, getTipos, aprovarRegistro, editarRegistro, type Registro } from "@/services/api";
@@ -34,6 +34,7 @@ export default function Validation() {
     mutationFn: aprovarRegistro,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["registros"] });
+      queryClient.invalidateQueries({ queryKey: ["ranking"] });
       toast.success("Registro aprovado!");
     },
     onError: (err: Error) => toast.error(err.message),
@@ -44,6 +45,7 @@ export default function Validation() {
       editarRegistro(id, dados),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["registros"] });
+      queryClient.invalidateQueries({ queryKey: ["ranking"] });
       toast.success("Alterações salvas!");
       setEditing(null);
     },
@@ -53,8 +55,8 @@ export default function Validation() {
   const handleSaveEdit = () => {
     if (!editing) return;
     const horas = parseFloat(acceptedHours);
-    if (!acceptedHours || isNaN(horas) || horas <= 0) {
-      toast.error("Informe uma quantidade de horas válida");
+    if (!acceptedHours || isNaN(horas) || horas < 0.5 || horas > 24) {
+      toast.error("Informe um valor entre 0.5 e 24 horas");
       return;
     }
     editarMutation.mutate({
@@ -85,18 +87,13 @@ export default function Validation() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <StatCard label="Pendentes" value={pendentes.length} icon={<Hourglass className="h-5 w-5" />} accent="warning" />
         <StatCard label="Aprovadas" value={aprovadas.length} icon={<CheckCircle2 className="h-5 w-5" />} accent="success" />
       </div>
 
       <Card className="p-6 shadow-card">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Fila de validação</h2>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Filter className="h-4 w-4" /> Filtros
-          </Button>
-        </div>
+        <h2 className="font-semibold mb-4">Fila de validação</h2>
         <div className="space-y-2">
           {isLoading ? (
             <div className="text-center py-8 text-muted-foreground">Carregando...</div>
@@ -128,6 +125,7 @@ export default function Validation() {
                   <Button
                     size="icon"
                     variant="outline"
+                    aria-label="Aprovar"
                     className="h-9 w-9 text-success border-success/30 hover:bg-success/10"
                     disabled={aprovarMutation.isPending}
                     onClick={() => aprovarMutation.mutate(r.id)}
@@ -137,6 +135,7 @@ export default function Validation() {
                   <Button
                     size="icon"
                     variant="outline"
+                    aria-label="Editar"
                     className="h-9 w-9 text-primary"
                     onClick={() => openEdit(r)}
                   >
@@ -208,10 +207,10 @@ export default function Validation() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Observações / Feedback</Label>
+                <Label>Descrição</Label>
                 <Textarea
                   rows={3}
-                  placeholder="Mensagem para a participante..."
+                  placeholder="Descrição da atividade..."
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                 />

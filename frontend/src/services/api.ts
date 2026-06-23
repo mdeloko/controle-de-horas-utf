@@ -42,6 +42,7 @@ export type Usuario = {
   name: string
   email: string
   role: 'Diretor' | 'Participante'
+  ativo: boolean
 }
 
 export type RankingEntry = {
@@ -74,6 +75,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       ...((options.headers as Record<string, string>) ?? {}),
     },
   })
+  if (res.status === 401 && token) {
+    localStorage.removeItem('md_token')
+    localStorage.removeItem('md_user')
+    window.location.href = '/login'
+    throw new Error('Sessão expirada')
+  }
   if (res.status === 204) return undefined as T
   const body = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error((body as { erro?: string }).erro ?? `Erro ${res.status}`)
@@ -101,6 +108,7 @@ function toUsuario(u: ApiUsuario): Usuario {
     name: u.nome,
     email: u.email,
     role: u.perfil === 'diretor' ? 'Diretor' : 'Participante',
+    ativo: u.ativo,
   }
 }
 
@@ -245,16 +253,38 @@ export async function createUsuario(dados: {
   nome: string
   email: string
   perfil: 'diretor' | 'participante'
-}): Promise<Usuario> {
-  const data = await request<ApiUsuario>('/user', {
+}): Promise<Usuario & { senhaTemporaria: string }> {
+  const data = await request<ApiUsuario & { senha_temporaria: string }>('/user', {
     method: 'POST',
+    body: JSON.stringify(dados),
+  })
+  return { ...toUsuario(data), senhaTemporaria: data.senha_temporaria }
+}
+
+export async function editUsuario(
+  id: number,
+  dados: { nome?: string; perfil?: 'diretor' | 'participante'; ativo?: boolean },
+): Promise<Usuario> {
+  const data = await request<ApiUsuario>(`/user/${id}`, {
+    method: 'PATCH',
     body: JSON.stringify(dados),
   })
   return toUsuario(data)
 }
 
-export async function resetarSenha(id: number): Promise<void> {
-  await request<void>(`/user/${id}/reset-senha`, { method: 'POST' })
+export async function resetarSenha(id: number): Promise<{ senhaTemporaria: string }> {
+  const data = await request<{ senha_temporaria: string }>(`/user/${id}/reset-senha`, { method: 'POST' })
+  return { senhaTemporaria: data.senha_temporaria }
+}
+
+export async function trocarSenha(dados: {
+  senha_atual: string
+  senha_nova: string
+}): Promise<void> {
+  await request<void>('/user/me/senha', {
+    method: 'PATCH',
+    body: JSON.stringify(dados),
+  })
 }
 
 // ── Relatórios ────────────────────────────────────────────────────────────
@@ -264,17 +294,25 @@ export async function getRanking(): Promise<RankingEntry[]> {
 }
 
 export async function exportarCSV(params: {
+  usuario_id?: number
   data_inicio?: string
   data_fim?: string
 } = {}): Promise<void> {
   const token = getToken()
   const qs = new URLSearchParams()
+  if (params.usuario_id) qs.set('usuario_id', String(params.usuario_id))
   if (params.data_inicio) qs.set('data_inicio', params.data_inicio)
   if (params.data_fim) qs.set('data_fim', params.data_fim)
   const url = `${BASE_URL}/relatorios/exportar.csv${qs.toString() ? `?${qs.toString()}` : ''}`
   const res = await fetch(url, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
+  if (res.status === 401 && token) {
+    localStorage.removeItem('md_token')
+    localStorage.removeItem('md_user')
+    window.location.href = '/login'
+    throw new Error('Sessão expirada')
+  }
   if (!res.ok) throw new Error('Erro ao exportar CSV')
   const blob = await res.blob()
   const a = document.createElement('a')
