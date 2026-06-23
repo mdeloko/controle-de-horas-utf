@@ -6,6 +6,7 @@ import requireDiretor from '../middlewares/requireDiretor.js'
 const userRouter = Router();
 
 userRouter.get('/me', usuarioController.buscarMe)
+userRouter.patch('/me/senha', usuarioController.trocarSenha)
 userRouter.get('/', requireDiretor, usuarioController.listar)
 userRouter.post('/', requireDiretor, usuarioController.criar)
 userRouter.patch('/:id', requireDiretor, usuarioController.editar)
